@@ -42,29 +42,28 @@ class Dispatcher
                 $action = new act\SignInAction();
                 $html = $action->execute();
                 break;
+            case 'display-user-playlists':
+                $action = new act\DisplayUserPlaylistsAction();
+                $html = $action->execute();
+                break;
         }
         $this->renderPage($html);
     }
 
     private function renderPage(string $html): void
-{
-    $displayPlaylist = '';
-    if (isset($_SESSION['playlist']) && isset($_SESSION['playlist_id'])) {
-        $id = htmlspecialchars($_SESSION['playlist_id'], ENT_QUOTES, 'UTF-8');
-        $displayPlaylist = "<li><a href='?action=display-playlist&id={$id}'>Afficher la playlist en session</a></li>";
-    }
-    echo <<<HEAD
+    {
+        $displayPlaylist = '';
+        if (isset($_SESSION['playlist']) && isset($_SESSION['playlist_id'])) {
+            $id = htmlspecialchars((string)$_SESSION['playlist_id'], ENT_QUOTES, 'UTF-8');
+            $displayPlaylist = "<li><a href='?action=display-playlist&id={$id}'>Afficher la playlist en session</a></li>";
+        }
+        echo <<<HEAD
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Deefy</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        header { margin-bottom: 20px; }
-        nav ul { list-style: none; padding: 0; display: flex; gap: 15px; }
-        nav ul li { display: inline; }
-    </style>
+    <link rel="stylesheet" type="text/css" href="src/css/styles.css">
 </head>
 <body>
     <header>
@@ -76,6 +75,7 @@ class Dispatcher
                 <li><a href="?action=signin">Connexion</a></li>
                 <li><a href="?action=add-playlist">Créer une playlist</a></li>
                 <li><a href="?action=add-track">Ajouter une piste à la playlist</a></li>
+                <li><a href="?action=display-user-playlists">Mes playlists</a></li>
                 $displayPlaylist
             </ul>
         </nav>
@@ -86,5 +86,6 @@ class Dispatcher
 </body>
 </html>
 HEAD;
+    }
 }
-}
+

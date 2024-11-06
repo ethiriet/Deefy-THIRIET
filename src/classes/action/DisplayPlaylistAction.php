@@ -12,13 +12,12 @@ class DisplayPlaylistAction extends Action
 
     public function execute(): string
 {
-    $html = '';
     $repo = DeefyRepository::getInstance();
 
     try {
         // Récupère l'ID de la playlist et stocke en session
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-        if ($id === null) {
+        if (!$id) {
             throw new \Exception("ID de playlist invalide.");
         }
         
@@ -42,4 +41,5 @@ class DisplayPlaylistAction extends Action
     
     return $html;
 }
+
 }

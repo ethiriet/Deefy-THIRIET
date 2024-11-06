@@ -5,6 +5,7 @@ namespace iutnc\deefy\repository;
 use iutnc\deefy\audio\tracks\AlbumTrack;
 use iutnc\deefy\audio\tracks\AudioTrack;
 use iutnc\deefy\audio\lists\Playlist;
+use iutnc\deefy\audio\lists\AudioList;
 use PDO;
 use PDOException;
 
@@ -146,14 +147,57 @@ class DeefyRepository
         $track = new AlbumTrack(
             $trackData['titre'],
             $trackData['filename'],
-            $trackData['artiste_album'] ?? 'Artiste inconnu',
+            $trackData['album'] ?? 'Album inconnu',  
             $trackData['numero_album'] ?? 0,
-            $trackData['duree']
+            $trackData['duree'],
+            $trackData['artiste_album'] ?? 'Artiste inconnu'  
         );
         $playlist->ajouterPiste($track);
     }
 
     return $playlist;
+}
+
+public function getUserPlaylists(int $userId): array
+{
+    $stmt = $this->pdo->prepare(
+        'SELECT p.id, p.nom FROM playlist p 
+         JOIN user2playlist u2p ON p.id = u2p.id_pl 
+         WHERE u2p.id_user = :userId'
+    );
+    $stmt->execute(['userId' => $userId]);
+    $playlistsData = $stmt->fetchAll();
+
+    $playlists = [];
+    foreach ($playlistsData as $playlistData) {
+        $playlists[$playlistData['id']] = new AudioList($playlistData['nom']);
+    }
+
+    return $playlists;  
+}
+
+private function getTracksByPlaylistId(int $playlistId): array
+{
+    $stmt = $this->pdo->prepare(
+        'SELECT * FROM track t 
+         JOIN playlist2track p2t ON t.id = p2t.id_track 
+         WHERE p2t.id_pl = :playlistId'
+    );
+    $stmt->execute(['playlistId' => $playlistId]);
+    $tracksData = $stmt->fetchAll();
+
+    $tracks = [];
+    foreach ($tracksData as $trackData) {
+        $tracks[] = new AlbumTrack(
+            $trackData['titre'],
+            $trackData['filename'],
+            $trackData['artiste_album'] ?? 'Artiste inconnu',
+            $trackData['numero_album'] ?? 0,
+            $trackData['duree']
+        );
+    }
+
+    return $tracks;
 }
 
     
